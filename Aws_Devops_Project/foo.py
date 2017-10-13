@@ -57,10 +57,10 @@ def run():
 
                 succ_id_list, not_worked_is_list, outs = \
                     my_aws.execute_commands_on_linux_instances(commands, instance_ids)
-            print("\nInstances that run the commands\n", '\n '.join(succ_id_list))
-            print("\nInstances that don't run the commands (Instance is not running or its SSM agent doesn't work or "
+            print("\nInstances that run the commands:\n", '\n '.join(succ_id_list))
+            print("\nInstances that don't run the commands: (Instance is not running or its SSM agent doesn't work or "
                   "command couldn't be executed\n", '\n '.join(not_worked_is_list))
-            print("\nInstances that run the commands and their outputs")
+            print("\nOutputs of the Instances that run the commands:")
             for i in outs:
                 print("\n")
                 for k, v in dict(i).items():
