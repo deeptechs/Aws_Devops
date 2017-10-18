@@ -13,6 +13,12 @@ Aws_Devops_Project's documentation!
    modules
 
 
+Usages:
+
+Simply call the foo script mentioned in `DevOps Challenge 1 
+<https://github.com/picussecurity/picus-challenge-questions/blob/master/devops/Fleet.md>`_ or run directly test_aws script. Follow the notes in test_aws `documentation. <test_aws.html>`_
+
+
 Indices and tables
 ==================
 
