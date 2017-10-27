@@ -13,11 +13,11 @@ Aws_Devops_Project's documentation!
 
 | Description:
 
-   `foo module <foo.html>`_ is the script code to use the main library.
+   `foo module <foo.html>`_ is the script code using the main library.
 
    `my_aws_api_library module <my_aws_api_library module.html>`_ is the main library module.
 
-   `test_aws module <test_aws.html>`_ is the automating test script.
+   `test_aws module <test_aws.html>`_ is the test script.
 
 | Usages:
 

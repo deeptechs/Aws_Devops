@@ -16,7 +16,7 @@ def run():
 
         1. Create an AWS account on portal. https://portal.aws.amazon.com/billing/signup
 
-        2. Create a IAM User in this account. https://console.aws.amazon.com/iam/home?region=us-east-2#/users
+        2. Create a IAM User in this account. https://console.aws.amazon.com/iam/home?region=eu-central-1#/users
 
         2.1. Select Access Type as "Programmatic access" for this user. Thus, enables an access key ID and secret access
         key for the AWS API, CLI, SDK, and other development tools.
@@ -30,8 +30,8 @@ def run():
 
         .. important::
 
-            AMI (Amazon Machine Image) is selected as Amazon Linux AMI. Region is selected as Ohio and hard coded AMI
-            (ami-ea87a78f) is in also Ohio (us-east-2) region.
+            AMI (Amazon Machine Image) is selected as Amazon Linux AMI. Region is selected as Frankfurt and hard coded
+            AMI (ami-c7ee5ca8) is in also Ohio (eu-central-1) region.
 
         2.5. To run this script, you should install The AWS SDK for Python **"boto3"** and Powerful data structures for
         data analysis, time series,and statistics **"pandas"** libraries;
@@ -54,7 +54,8 @@ def run():
     # and return a node_id
     # $ foo create --customer-id “a11f4af4b693” --node-type “Manager”
     # i-9b7891db92fdda53f
-    # call(["python.exe", "foo.py", "create", "--customer-id", str(randint(0,10)), "--node-type", "Peer"])
+    i_id = str(randint(0,10))
+    call(["python.exe", "foo.py", "create", "--customer-id", i_id, "--node-type", "Peer"])
 
     # List Nodes
     # 2.Given a CustomerId, it should be able to list all the NodeIds belonging to a specific CustomerId
@@ -76,28 +77,28 @@ def run():
     # script on all nodes saving each execution’s stdout and stderr to some medium
     # $ foo execute --customer-id “a11f4af4b693” --script /home/sysop/updatePackages.sh
     # $ foo execute --node-type “Manager” --script /home/sysop/genReport.sh
-    call(["python.exe", "foo.py", "execute", "--customer-id", str(randint(0, 10)), "--node-type", "Peer", "--script", "/home/sysop/updatePackages.sh"])
-
+    # call(["python.exe", "foo.py", "execute", "--customer-id", i_id, "--node-type", "Peer", "--script", "sudo status amazon-ssm-agent"])
+    call(["python.exe", "foo.py", "execute", "--customer-id", i_id, "--node-type", "Peer", "--script",
+          "/home/sysop/updatePackages.sh"])
     # Backup
     # Should be able to snapshot a specific Node’s ‘/data’ mount point
     # $ foo backup --node-id “i-9b7891db92fdda53f”
     # i-913749823749211
-    # call(["python.exe", "foo.py", "backup", "--node-id", "i-04cddff49921b7e4f"])
+    #call(["python.exe", "foo.py", "backup", "--node-id", "i-029119bf4131a8778"])
 
     # List Backups
     # Should be able to list backups of a specific node along with the snapshot date
     # $ foo list-backups --node-id “i-9b7891db92fdda53f”
     # i-913749823749211, 2017-03-20 21:19
     # i-913749823749233, 2017-02-21 07:30
-    # call(["python.exe", "foo.py", "list-backups", "--node-id", "i-04cddff49921b7e4f"])
+    #call(["python.exe", "foo.py", "list-backups", "--node-id", "i-029119bf4131a8778"])
 
     # Roll Back
     # Should be able to roll-back to a specific BackupId for a given node_id
     # $ foo rollback --backup-id “i-913749823749211”
-    # call(["python.exe", "foo.py", "roll-back", "--node-id", "i-04cddff49921b7e4f", "--backup-id", "snap-094a7f8d36c5e3374"])
+    #call(["python.exe", "foo.py", "roll-back", "--node-id", "i-029119bf4131a8778", "--backup-id", "snap-05a8c8044a5f8bee7"])
 
     # Terminate All
-    # Bonus
     # call(["python.exe", "foo.py", "terminate-all"])
 
 

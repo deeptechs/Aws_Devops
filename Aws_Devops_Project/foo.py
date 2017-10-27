@@ -11,7 +11,6 @@ def run():
         True on successful calls, otherwise False.
 
     """
-
     if args.action == "create":
         if args.customer_id and args.node_type:
             my_aws = createaws()
@@ -26,7 +25,8 @@ def run():
         if args.customer_id:
             my_aws = createaws()
             instance_lst = my_aws.get_instance_by_customer_id(args.customer_id)
-            print("Customer ", args.customer_id, " has these Instances: ", ",".join(instance_lst), "\n")
+            print("Customer", args.customer_id, "has " + str(len(instance_lst)) + " Instances: ", ",".join(instance_lst)
+                  ,"\n")
             return True
         else:
             print("Missed command parameters for Instance Listing")
@@ -39,10 +39,10 @@ def run():
         if len(cust_inst_ip) > 0:
             for rec in cust_inst_ip:
                 print(', '.join(rec))
-                return True
         else:
             print("No Instances!")
-            return True
+            return False
+        return True
 
     elif args.action == "execute":
         instance_ids, succ_id_list, not_worked_is_list, outs = [], [], [], []
@@ -103,7 +103,7 @@ def run():
         print("Please select a proper action")
 
 
-def createaws():
+def createaws() -> my_aws_api_library.MyAws:
 
     """Reads the credentials and instantiates a MyAws object.
 
@@ -111,9 +111,10 @@ def createaws():
 
         Required Environmental Variables:
 
-        **AWS_CRED_FILE** --> Indicates the .csv file that consists AWS Access key ID, Secret access key to access AWS APIs.
+        **AWS_CRED_FILE** --> Indicates the .csv file that consists AWS Access key ID, Secret access key to access AWS
+        APIs.
 
-        **COMPANY_PUBKEY**  --> Indicates the .pub file that consists Public Key to access Aws Instances.
+        **COMPANY_PUBKEY** --> Indicates the .pub file that consists Public Key to access Aws Instances.
 
     Returns:
         object: :class:`~my_aws_api_library.MyAws` object
@@ -150,6 +151,8 @@ def read_args():
 
 
 if __name__ == "__main__":
-    parser = None
     read_args()
     run()
+
+# Globals
+args = None

@@ -8,6 +8,8 @@ import pandas
 
 class MyAws:
 
+    _conn_args, _ec2R, _ssmC, _iamR, _pb_ky_fl, _key_pair_name = None, None, None, None, None, None
+
     def __init__(self, aws_cr_fl, pb_ky_fl):
 
         """Initialize the aws service objects with the provided environmental variable.
@@ -16,14 +18,14 @@ class MyAws:
             aws_cr_fl: Csv file path of Aws access key id and security access key.
             pb_ky_fl: pub file of the Aws SSH public key.
         """
-        self.conn_args = self.read_con_arg(aws_cr_fl)
+        self.conn_args = self._read_con_arg(aws_cr_fl)
         self.ec2R = boto3.resource('ec2', **self.conn_args)
         self.ssmC = boto3.client('ssm', **self.conn_args)
         self.iamR = boto3.resource('iam', **self.conn_args)
         self.pb_ky_fl = pb_ky_fl
 
         self.key_pair_name = "COMPANY_KEYPAIR"
-        self.import_key_pair()
+        self._find_key_pair()
 
     def create_ec2_instance(self, customer_id, node_type):
 
@@ -47,14 +49,27 @@ class MyAws:
 
         """
 
-        # Define "userdata field" to be run at instance launch.
-        userdata = """#cloud-config
-    
+        # Define "userdata field" to be run at instance launch for SSM Agent installation.
+        # Creating a dummy script file to run it future
+        # Note: After 2017.09 Amazon Linux AMIs have SSM default.
+        # If you manually want to install SSM add this line to runcmd:
+        # - cd /tmp
+        # - yum install -y https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
+        # For more information about yaml, cloud-init visit:
+        # http://cloudinit.readthedocs.io/en/latest/topics/examples.html
+        userdata ="""#cloud-config
+
         runcmd:
-         - cd /tmp
-         - sudo yum install -y 
-         https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_amd64/amazon-ssm-agent.rpm
-        """
+         - 
+         
+        write_files:
+         -   path: /home/sysop/updatePackages.sh
+             content: |
+               date
+               uname -a
+             owner: root:root
+             permissions: '0700'
+"""
 
         rolename = "amazonec2ssmrole"
         i_pro_name = "ins_pro_for_ssm"
@@ -81,7 +96,7 @@ class MyAws:
 
         if node_type == "Manager":
             instance = self.ec2R.create_instances(
-                ImageId='ami-ea87a78f',
+                ImageId='ami-c7ee5ca8',
                 MinCount=1,
                 MaxCount=1,
                 UserData=userdata,
@@ -91,7 +106,7 @@ class MyAws:
                 BlockDeviceMappings=[{"DeviceName": "/dev/xvda", "Ebs": {"VolumeSize": 20}}])
         elif node_type == "Peer":
             instance = self.ec2R.create_instances(
-                ImageId='ami-ea87a78f',
+                ImageId='ami-c7ee5ca8',
                 MinCount=1,
                 MaxCount=1,
                 UserData=userdata,
@@ -112,6 +127,7 @@ class MyAws:
 
         self.ec2R.create_tags(Resources=[instance[0].id], Tags=[{'Key': 'customer-id', 'Value': str(customer_id)}])
         self.ec2R.create_tags(Resources=[instance[0].id], Tags=[{'Key': 'node-type', 'Value': node_type}])
+
         return instance[0].id
 
     def get_customer_by_instance_id(self, ins_id):
@@ -270,7 +286,8 @@ class MyAws:
             # Wait until all the commands status are out of Pending and InProgress. Check if infinite loops !
             while True:
                 list_comm = self.ssmC.list_commands(CommandId=com_id)
-                if list_comm['Commands'][0]['Status'] == 'Pending' or list_comm['Commands'][0]['Status'] == 'InProgress':
+                if list_comm['Commands'][0]['Status'] == 'Pending' or list_comm['Commands'][0]['Status'] == \
+                        'InProgress':
                     continue
                 else:
                     # Commands on all Instances were executed
@@ -318,14 +335,14 @@ class MyAws:
         ins = self.ec2R.Instance(n_id)
         s_id = None
 
-        device_name = self.generate_device_name(n_id)
+        device_name = self._generate_device_name(n_id)
         if device_name is None:
             print('There is no available any proper device name')
             return None
 
         # Only for testing purpose, create a volume and attach it to instance with device_name device. Then mount it.
         # Now we have a /data mount point to backup.
-        self.create_and_mount(device_name, n_id)
+        self._create_and_mount(device_name, n_id)
 
         # Starting to backup, list the devices and their mount points, get the device that has /data mount point
         a, b, out = self.execute_commands_on_linux_instances('lsblk;', [n_id])
@@ -360,7 +377,7 @@ class MyAws:
 
         return s_id
 
-    def create_and_mount(self, device_name, n_id):
+    def _create_and_mount(self, device_name, n_id):
 
         """Create a volume and name it with device_name on specified Instance
 
@@ -375,8 +392,10 @@ class MyAws:
             For more information about naming : http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/device_naming.html
 
         """
+        instance = self.ec2R.Instance(n_id)
+        avz = instance.placement['AvailabilityZone']
         print("Creating volume...\n")
-        resp = self.ec2R.meta.client.create_volume(AvailabilityZone='us-east-2a', Size=1)
+        resp = self.ec2R.meta.client.create_volume(AvailabilityZone=avz, Size=1)
         waiter = self.ec2R.meta.client.get_waiter('volume_available')
         waiter.wait(VolumeIds=[resp.get('VolumeId')])
 
@@ -443,6 +462,7 @@ class MyAws:
 
         # There is no volumes associated with the snapshot ID.
         if len(vol_id_list) == 0:
+            print("No Volumes on Instance, associated with the snapshot ID")
             return None
 
         for old_vol_id in vol_id_list:
@@ -513,7 +533,7 @@ class MyAws:
                 return None
         return True
 
-    def generate_device_name(self, n_id):
+    def _generate_device_name(self, n_id):
         """Try to find a proper device name, searches from /dev/sdf to /dev/sdp.
 
         Returns:
@@ -535,8 +555,8 @@ class MyAws:
             else:
                 return d_name
 
-    @classmethod
-    def read_con_arg(cls, cred_file):
+    @staticmethod
+    def _read_con_arg(cred_file):
 
         """Read the Access Key Id and Secret Access Key from a csv credential file downloaded from Aws portal.
 
@@ -548,7 +568,7 @@ class MyAws:
 
         .. warning::
 
-            Set the region default 'us-east-2'
+            Set the region default 'eu-central-1'
         """
         df = pandas.read_csv(cred_file, sep=',')
 
@@ -558,12 +578,12 @@ class MyAws:
         dic = {
             'aws_access_key_id': access_key_id,
             'aws_secret_access_key': secret_access_key,
-            'region_name': 'us-east-2'
+            'region_name': 'eu-central-1'
         }
 
         return dic
 
-    def import_key_pair(self):
+    def _find_key_pair(self):
 
         """Create the key pair named "COMPANY_KEYPAIR", if not exist.
 
