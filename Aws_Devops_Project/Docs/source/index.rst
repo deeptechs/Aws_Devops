@@ -30,9 +30,12 @@ Aws_Devops_Project's documentation!
 | Prerequisite:
 
   To run this python script, you should install The AWS SDK for Python **"boto3"** and Powerful data structures for data analysis, time series,and statistics **"pandas"** libraries;
+  
   Simply;
-    $ pip install boto3
-    $ pip install pandas
+  
+  $ pip install boto3
+  
+  $ pip install pandas
 
 | 
 
