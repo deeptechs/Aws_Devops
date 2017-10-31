@@ -27,15 +27,12 @@ Aws_Devops_Project's documentation!
    2. Or run directly test_aws script. Follow the notes in test_aws `documentation. 
    <test_aws.html>`_
    
-| Requirements:
+| Prerequisite:
 
-  To run this script, you should install The AWS SDK for Python **"boto3"** and Powerful data structures for data analysis, time series,and statistics **"pandas"** libraries;
-  
-        Simply;
-        
-        $ pip install boto3
-        
-        $ pip install pandas
+  To run this python script, you should install The AWS SDK for Python **"boto3"** and Powerful data structures for data analysis, time series,and statistics **"pandas"** libraries;
+  Simply;
+    $ pip install boto3
+    $ pip install pandas
 
 | 
 
