@@ -33,16 +33,6 @@ def run():
             AMI (Amazon Machine Image) is selected as Amazon Linux AMI. Region is selected as Frankfurt and hard coded
             AMI (ami-c7ee5ca8) is in also Frankfurt (eu-central-1) region.
 
-        2.5. To run this script, you should install The AWS SDK for Python **"boto3"** and Powerful data structures for
-        data analysis, time series,and statistics **"pandas"** libraries;
-
-        Simply;
-
-        $ pip install boto3
-
-        $ pip install pandas
-
-
 
     Returns:
         None:
@@ -62,7 +52,7 @@ def run():
     # $ foo list-nodes --customer-id “a11f4af4b693”
     # i-9b7891db92fdda53f
     # i-8aa344f8c2fa2983c
-    # call(["python.exe", "foo.py", "list-nodes", "--customer-id", str(randint(0,10))])
+    # call(["python.exe", "foo.py", "list-nodes", "--customer-id", i_id])
 
     # List All
     # 3.It should be able to list all NodeIds, CustomerIds and their corresponding IPs (ex: to execute a specific
