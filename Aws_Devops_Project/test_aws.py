@@ -31,7 +31,7 @@ def run():
         .. important::
 
             AMI (Amazon Machine Image) is selected as Amazon Linux AMI. Region is selected as Frankfurt and hard coded
-            AMI (ami-c7ee5ca8) is in also Ohio (eu-central-1) region.
+            AMI (ami-c7ee5ca8) is in also Frankfurt (eu-central-1) region.
 
         2.5. To run this script, you should install The AWS SDK for Python **"boto3"** and Powerful data structures for
         data analysis, time series,and statistics **"pandas"** libraries;
@@ -77,9 +77,8 @@ def run():
     # script on all nodes saving each execution’s stdout and stderr to some medium
     # $ foo execute --customer-id “a11f4af4b693” --script /home/sysop/updatePackages.sh
     # $ foo execute --node-type “Manager” --script /home/sysop/genReport.sh
-    # call(["python.exe", "foo.py", "execute", "--customer-id", i_id, "--node-type", "Peer", "--script", "sudo status amazon-ssm-agent"])
-    call(["python.exe", "foo.py", "execute", "--customer-id", i_id, "--node-type", "Peer", "--script",
-          "/home/sysop/updatePackages.sh"])
+    # call(["python.exe", "foo.py", "execute", "--customer-id", i_id, "--node-type", "Peer", "--script", "/home/sysop/updatePackages.sh"])
+    
     # Backup
     # Should be able to snapshot a specific Node’s ‘/data’ mount point
     # $ foo backup --node-id “i-9b7891db92fdda53f”
